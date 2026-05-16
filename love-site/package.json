@@ -9,7 +9,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "vercel": "^latest"
+    "vercel": "latest"
   },
   "optionalDependencies": {
     "@vercel/og": "^0.5.19"
