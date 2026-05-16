@@ -1,0 +1,17 @@
+{
+  "name": "love-site",
+  "version": "1.0.0",
+  "description": "Красивый сайт для особенной - полностью работает без зависимостей",
+  "scripts": {
+    "build": "echo 'Build complete'",
+    "dev": "vercel dev",
+    "deploy": "vercel deploy --prod"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vercel": "^latest"
+  },
+  "optionalDependencies": {
+    "@vercel/og": "^0.5.19"
+  }
+}
