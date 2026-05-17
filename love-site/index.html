@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
+  <meta name="theme-color" content="#FFB3D9" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <title id="page-title">💕</title>
+
+  <meta property="og:title" content="Для тебя💕" />
+  <meta property="og:description" content="Откроешь?" />
+  <meta property="og:image" content="/api/og?title=💕&subtitle=Я%20тебя%20люблю" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+<!-- Прогресс-бар чтения -->
+<div id="read-progress-bar"></div>
+
+<!-- ══════════════ SCREEN 1: NAME INPUT ══════════════ -->
+<div id="screen-name" class="screen active">
+  <div class="name-container">
+    <div class="name-emoji">💌</div>
+    <h1 class="name-title">📖 Альбом для тебя</h1>
+    <p class="name-subtitle">Это написал Aldik специально для тебя</p>
+    <p class="name-author">Введи своё имя, чтобы начать</p>
+
+    <div class="input-group">
+      <label for="name-input">Как тебя зовут?</label>
+      <input type="text" id="name-input" placeholder="Адиюша" maxlength="30"
+             autocomplete="given-name" aria-label="Твоё имя" />
+    </div>
+
+    <button class="btn btn-primary" id="btn-continue">Открыть 💕</button>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 2: QUIZ ══════════════ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-container">
+    <div class="quiz-header">
+      <h2>🎯 Маленький тест</h2>
+      <p>Нужно хотя бы <strong style="color:#FFD700;" id="quiz-required">2</strong> правильных ответа</p>
+      <div class="quiz-progress">
+        <span id="quiz-score">0</span> / <span id="quiz-total">3</span> ✓
+      </div>
+    </div>
+
+    <div class="quiz-questions">
+      <!-- Рендерится через script.js -->
+    </div>
+
+    <button class="btn btn-primary" id="btn-quiz-submit" style="margin-top: 24px; display: none; width: 100%;">
+      Проверить →
+    </button>
+    <p class="quiz-error" id="quiz-error" style="color: #ffb3b3; margin-top: 12px; text-align: center; display: none;"></p>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 3: PASSWORD ══════════════ -->
+<div id="screen-password" class="screen">
+  <div class="password-container">
+    <div class="password-emoji">🔐</div>
+    <h1 class="password-title">Последний шаг</h1>
+    <p class="password-subtitle">Напиши ник того,<br/>кто сделал этот альбом для тебя 😉</p>
+
+    <div class="input-group" style="margin-top: 32px;">
+      <label for="password-input">Его ник:</label>
+      <input type="text" id="password-input" placeholder="чей это альбом?" maxlength="30"
+             autocomplete="off" aria-label="Ник создателя" />
+      <p class="hint-text">Подсказка: aldik</p>
+    </div>
+
+    <button class="btn btn-primary" id="btn-verify" style="margin-top: 24px; width: 100%; max-width: 300px;">
+      Открыть альбом 💕
+    </button>
+    <p class="password-error" id="password-error"></p>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 4: SLIDESHOW ══════════════ -->
+<div id="screen-slideshow" class="screen">
+  <h2 class="slide-section-title">Почему aldik написал это</h2>
+
+  <div class="slideshow-container">
+    <div class="slide active">
+      <div class="slide-emoji">💔</div>
+      <h3 class="slide-title">Я перегнул</h3>
+      <p class="slide-text">Моя ревность перешла границу, и вместо любви ты почувствовала давление. Я понимаю, почему тебе было неприятно.</p>
+    </div>
+
+    <div class="slide">
+      <div class="slide-emoji">💭</div>
+      <h3 class="slide-title">Я много об этом думал</h3>
+      <p class="slide-text">И понял, что дело не в тебе. Это мои страхи и эмоции, с которыми я неправильно справился.</p>
+    </div>
+
+    <div class="slide">
+      <div class="slide-emoji">✨</div>
+      <h3 class="slide-title">Ты важнее моих эмоций</h3>
+      <p class="slide-text">Я не хочу, чтобы из-за моей ревности ты чувствовала усталость, контроль или напряжение рядом со мной.</p>
+    </div>
+
+    <div class="slide">
+      <div class="slide-emoji">💕</div>
+      <h3 class="slide-title">Я хочу стать спокойнее</h3>
+      <p class="slide-text">Не обещаю стать идеальным за день. Но обещаю учиться доверять тебе, а не своим накрутам.</p>
+    </div>
+
+    <div class="progress-dots">
+      <span class="dot active"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 12px; margin-top: 32px; padding: 0 24px 32px;">
+    <button class="btn btn-secondary" style="flex: 1;" id="btn-prev-slide">← Назад</button>
+    <button class="btn btn-primary"   style="flex: 1;" id="btn-next-slide">Дальше →</button>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 5: QUESTION ══════════════ -->
+<div id="screen-question" class="screen">
+  <div class="question-wrapper">
+
+    <div class="question-header">
+      <h2>Главный вопрос 💭</h2>
+      <p>От aldik'а — только честно</p>
+    </div>
+
+    <div class="question-card">
+      <p class="dodge-question">Ты меня простишь?</p>
+
+      <div class="question-buttons-row">
+        <button class="btn" id="btn-yes-main" onclick="celebrateQuestion()">
+          ✨Да любимый, конечно!
+        </button>
+
+        <div class="no-btn-wrapper">
+          <button id="btn-no-shrink" onclick="handleNoPress()">Нет😒</button>
+          <span class="no-drama-msg" id="no-drama-msg"></span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-secondary" onclick="showScreen('screen-main')" style="display: block; margin: 0 auto;">
+      ← Вернуться к альбому
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 6: MAIN CONTENT ══════════════ -->
+<div id="screen-main" class="screen">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-emoji">💕</div>
+      <div class="user-greeting" id="user-greeting"></div>
+      <h1 class="hero-title">Прости<br/>меня</h1>
+      <p class="hero-subtitle">Это альбом, который aldik написал только для тебя.<br/>Прочитай до конца, пожалуйста.</p>
+      <div class="reading-timer-badge">
+        ⏱ Ты читаешь уже <span id="timer-display">0:00</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="section" data-section="timeline">
+    <h2 class="section-title">Что произошло</h2>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div>
+          <p class="timeline-date">Сначало</p>
+          <p class="timeline-text">У нас всё было хорошо, но внутри себя я начал накручивать вещи, о которых стоило спокойно поговорить.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div>
+          <p class="timeline-date">Потом</p>
+          <p class="timeline-text">Вместо нормального разговора я дал ревности управлять мной. И сделал тебе неприятно этим.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div>
+          <p class="timeline-date">После</p>
+          <p class="timeline-text">Я понял, что любовь не должна ощущаться как давление или постоянные подозрения.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div>
+          <p class="timeline-date">Сейчас</p>
+          <p class="timeline-text">Я не пытаюсь оправдаться. Я просто хочу стать человеком, рядом с которым тебе спокойно.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="section" data-section="gallery">
+    <h2 class="section-title">Наши моменты 📸</h2>
+    <div class="gallery-container" id="gallery-container">
+      <!-- Слайд 1 → utro.jpg / utro.png -->
+      <div class="gallery-slide active">
+        <img class="gallery-photo" src="public/utro.jpg" alt="Наше утро" />
+        <span class="gallery-emoji-fallback">🌅</span>
+      </div>
+      <!-- Слайд 2 → kofe.jpg / kofe.png -->
+      <div class="gallery-slide">
+        <img class="gallery-photo" src="public/kofe.jpg" alt="Кофе вместе" />
+        <span class="gallery-emoji-fallback">☕</span>
+      </div>
+      <!-- Слайд 3 → kino.jpg / kino.png -->
+      <div class="gallery-slide">
+        <img class="gallery-photo" src="public/kino.jpg" alt="Наше кино" />
+        <span class="gallery-emoji-fallback">🎬</span>
+      </div>
+      <!-- Слайд 4 → luna.jpg / luna.png -->
+      <div class="gallery-slide">
+        <img class="gallery-photo" src="public/luna.jpg" alt="Наша ночь" />
+        <span class="gallery-emoji-fallback">🌙</span>
+      </div>
+      <!-- Слайд 5 → vmeste.jpg / vmeste.png -->
+      <div class="gallery-slide">
+        <img class="gallery-photo" src="public/vmeste.jpg" alt="Мы вместе" />
+        <span class="gallery-emoji-fallback">💑</span>
+      </div>
+    </div>
+    <div class="gallery-text" id="gallery-text">Наше утро вместе — волшебство ☕</div>
+    <div class="gallery-nav" id="gallery-nav">
+      <span class="gallery-dot active"></span>
+      <span class="gallery-dot"></span>
+      <span class="gallery-dot"></span>
+      <span class="gallery-dot"></span>
+      <span class="gallery-dot"></span>
+    </div>
+  </section>
+
+  <!-- REASONS -->
+  <section class="section" data-section="reasons">
+    <h2 class="section-title">За что aldik любит тебя</h2>
+    <div class="reasons-grid">
+      <div class="reason-card" tabindex="0">
+        <div class="reason-emoji">😂</div>
+        <div class="reason-title">Твой смех</div>
+        <div class="reason-text">Когда ты смеёшься — весь мир становится лучше. Я готов дурачиться вечно, лишь бы слышать его.</div>
+      </div>
+      <div class="reason-card" tabindex="0">
+        <div class="reason-emoji">🧠</div>
+        <div class="reason-title">Твой ум</div>
+        <div class="reason-text">Ты умнее меня, и я люблю учиться у тебя. Рядом с тобой я хочу становиться лучше.</div>
+      </div>
+      <div class="reason-card" tabindex="0">
+        <div class="reason-emoji">❤️</div>
+        <div class="reason-title">Твоё сердце</div>
+        <div class="reason-text">Ты замечаешь других так, как не умеет большинство. Это редкость — и это ты.</div>
+      </div>
+      <div class="reason-card" tabindex="0">
+        <div class="reason-emoji">✨</div>
+        <div class="reason-title">Просто ты</div>
+        <div class="reason-text">Таких людей больше нет. Ты — весь мой мир, и я хочу, чтобы ты знала это каждый день.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROMISES -->
+  <section class="section" data-section="promises">
+    <h2 class="section-title">Обещания aldik'а</h2>
+    <ul class="promise-list">
+      <li class="promise-item"><span class="promise-icon">🔇</span>Больше не игнорировать, когда тебе нужно внимание</li>
+      <li class="promise-item"><span class="promise-icon">💬</span>Говорить, что чувствую — а не молчать</li>
+      <li class="promise-item"><span class="promise-icon">⏰</span>Находить для тебя время, всегда</li>
+      <li class="promise-item"><span class="promise-icon">🌱</span>Расти и становиться лучше каждый день</li>
+      <li class="promise-item"><span class="promise-icon">💕</span>Напоминать тебе, как ты важна для меня</li>
+    </ul>
+  </section>
+
+  <!-- QUESTION CTA -->
+  <section class="section" data-section="cta">
+    <h2 class="section-title">Готова ответить?</h2>
+    <p style="text-align: center; color: var(--muted); font-size: 16px; margin-bottom: 24px;">aldik ждёт</p>
+    <button class="btn btn-yes" onclick="goToQuestion()" style="margin: 0 auto; display: block; font-size: 18px; padding: 16px 40px;">
+      💫 Ответить
+    </button>
+  </section>
+
+  <!-- LETTER -->
+  <section class="section" data-section="letter">
+    <h2 class="section-title">Письмо для тебя 💌</h2>
+ <div class="letter-body">
+  <p>Жаным,</p>
+
+  <p>
+    Я знаю, что моя ревность сильно всё испортила.
+    И я понимаю, что дело даже не в самой ссоре, а в том,
+    какие эмоции я тебе этим дал.
+  </p>
+
+  <p>
+    Мне правда жаль, что вместо спокойствия и любви
+    ты получила напряжение и неприятные разговоры.
+  </p>
+
+  <p>
+    Я не хочу превращаться в человека,
+    рядом с которым тебе тяжело дышать.
+    Ты этого не заслуживаешь.
+  </p>
+
+  <p>
+    Я люблю тебя не меньше.
+    Просто иногда страх потерять тебя оказывается громче разума.
+    Но это не должно ранить тебя.
+  </p>
+
+  <p>
+    Я хочу учиться доверять тебе правильно.
+    Без давления.
+    Без лишних сцен.
+    Без того, чтобы делать тебе больно своими эмоциями.
+  </p>
+
+  <p class="letter-signature">
+    aldik 💕
+  </p>
+</div>
+    </div>
+  </section>
+
+  <div style="height: 100px;"></div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <button class="navbar-btn" onclick="scrollToTop()" aria-label="Наверх">⬆️</button>
+  <button class="navbar-btn" onclick="scrollToSection('gallery')" aria-label="Галерея">📸</button>
+  <button class="navbar-btn" onclick="goToQuestion()" aria-label="Вопрос">💭</button>
+  <button class="navbar-btn" onclick="scrollToSection('letter')" aria-label="Письмо">💌</button>
+</nav>
+
+<!-- ══════════════ SCREEN YES: CELEBRATION ══════════════ -->
+<div id="screen-yes" class="screen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:9000; overflow:hidden; background:#0a0008;">
+  <!-- Canvas для частиц фона -->
+  <canvas id="yes-bg-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></canvas>
+
+  <!-- Canvas для 3D сердца -->
+  <canvas id="yes-heart-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></canvas>
+
+  <!-- Текст поверх -->
+  <div id="yes-content" style="
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:flex-end;
+    padding-bottom: max(48px, env(safe-area-inset-bottom));
+    pointer-events:none;
+  ">
+    <div id="yes-name" style="
+      font-family:'Playfair Display',serif;
+      font-size: clamp(32px,8vw,56px);
+      font-weight:900; color:#fff;
+      text-shadow: 0 0 40px rgba(255,100,180,0.9), 0 0 80px rgba(255,50,150,0.5);
+      opacity:0; transform:translateY(30px);
+      transition: opacity 1s ease 0.8s, transform 1s ease 0.8s;
+      text-align:center; line-height:1.15; padding:0 24px;
+    "></div>
+    <div id="yes-sub" style="
+      font-family:'Jost',sans-serif;
+      font-size: clamp(14px,4vw,20px);
+      font-weight:300; color:rgba(255,200,230,0.9);
+      letter-spacing:0.12em; text-transform:uppercase;
+      opacity:0; transform:translateY(20px);
+      transition: opacity 1s ease 1.4s, transform 1s ease 1.4s;
+      margin-top:12px; text-align:center;
+    ">Ты сделала меня самым счастливым</div>
+
+    <button onclick="closeYesScreen()" style="
+      pointer-events:auto;
+      margin-top:40px;
+      background:rgba(255,255,255,0.12);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      color:white; padding:14px 36px;
+      border-radius:999px; font-size:15px;
+      font-family:'Jost',sans-serif; font-weight:500;
+      cursor:pointer; letter-spacing:0.08em;
+      backdrop-filter: blur(10px);
+      transition: background 0.2s, transform 0.2s;
+      opacity:0;
+      transition: opacity 1s ease 2s, background 0.2s, transform 0.2s;
+      " id="yes-close-btn"
+      onmouseover="this.style.background='rgba(255,255,255,0.22)'"
+      onmouseout="this.style.background='rgba(255,255,255,0.12)'"
+    >
+      Перейти к альбому ✨
+    </button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
