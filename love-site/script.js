@@ -316,33 +316,274 @@ function selectGallerySlide(n) {
   document.getElementById('gallery-text').textContent = galleryMeta[n];
 }
 
-// ── HEART 3D ──
+// ── HEART 3D (legacy — kept for compatibility, не используется на экране вопроса) ──
 function generateHeart3D(name) {
-  const letters = (name || 'X').split('');
-  const pat = [
-    '  XXXX    XXXX  ',
-    ' XXXXXX  XXXXXX ',
-    'XXXXXXXXXXXXXXXX',
-    'XXXXXXXXXXXXXXXX',
-    'XXXXXXXXXXXXXXXX',
-    ' XXXXXXXXXXXX  ',
-    '  XXXXXXXXXX  ',
-    '   XXXXXXXX   ',
-    '    XXXXXX    ',
-    '     XXXX     ',
-    '      XX      '
-  ];
-  let out = '', idx = 0;
-  for (const row of pat) {
-    for (const ch of row) {
-      out += ch === 'X' ? letters[idx++ % letters.length] : ' ';
-    }
-    out += '\n';
-  }
-  document.getElementById('heart-3d').textContent = out;
+  // больше не рендерим ASCII на экране вопроса
 }
 
-// ── NO BUTTON LOGIC (mobile-first shrink mechanic) ──
+// ══════════════════════════════════════════════════════
+// YES SCREEN — полноэкранное 3D сердце + спецэффекты
+// ══════════════════════════════════════════════════════
+
+let yesAnimFrame = null;
+let yesActive = false;
+
+function showYesScreen(userName) {
+  const screen = document.getElementById('screen-yes');
+  screen.style.display = 'flex';
+  screen.classList.add('active');
+
+  // Обновляем текст
+  const nameEl = document.getElementById('yes-name');
+  nameEl.textContent = `Спасибо, ${userName || 'моя хорошая'}! 💕`;
+
+  // Запускаем анимацию текста через rAF (чтобы transition сработал)
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      nameEl.style.opacity = '1';
+      nameEl.style.transform = 'translateY(0)';
+      document.getElementById('yes-sub').style.opacity = '1';
+      document.getElementById('yes-sub').style.transform = 'translateY(0)';
+      document.getElementById('yes-close-btn').style.opacity = '1';
+    }, 50);
+  });
+
+  yesActive = true;
+  initYesBg();
+  initYesHeart(userName || 'X');
+}
+
+function closeYesScreen() {
+  yesActive = false;
+  if (yesAnimFrame) cancelAnimationFrame(yesAnimFrame);
+
+  const screen = document.getElementById('screen-yes');
+  screen.style.opacity = '0';
+  screen.style.transition = 'opacity 0.6s ease';
+  setTimeout(() => {
+    screen.style.display = 'none';
+    screen.style.opacity = '';
+    screen.style.transition = '';
+    screen.classList.remove('active');
+
+    // Сбрасываем текст для следующего показа
+    document.getElementById('yes-name').style.opacity = '0';
+    document.getElementById('yes-name').style.transform = 'translateY(30px)';
+    document.getElementById('yes-sub').style.opacity = '0';
+    document.getElementById('yes-sub').style.transform = 'translateY(20px)';
+    document.getElementById('yes-close-btn').style.opacity = '0';
+
+    showScreen('screen-main');
+  }, 600);
+}
+
+// ── ФОНОВЫЕ ЧАСТИЦЫ ──
+function initYesBg() {
+  const canvas = document.getElementById('yes-bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles;
+
+  function resize() {
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Создаём частицы: мерцающие звёзды + дрейфующие пятна
+  particles = Array.from({ length: 120 }, () => ({
+    x: Math.random() * 1,
+    y: Math.random() * 1,
+    r: Math.random() * 2.5 + 0.3,
+    speed: Math.random() * 0.0003 + 0.00005,
+    angle: Math.random() * Math.PI * 2,
+    twinkle: Math.random() * Math.PI * 2,
+    twinkleSpeed: Math.random() * 0.04 + 0.01,
+    hue: Math.random() < 0.5 ? 330 + Math.random() * 30 : 280 + Math.random() * 40,
+    alpha: Math.random() * 0.7 + 0.2,
+  }));
+
+  // Большие световые пятна
+  const glows = Array.from({ length: 5 }, (_, i) => ({
+    x: Math.random(),
+    y: Math.random(),
+    r: 0.15 + Math.random() * 0.2,
+    hue: i % 2 === 0 ? 330 : 290,
+    phase: Math.random() * Math.PI * 2,
+    speed: 0.003 + Math.random() * 0.004,
+  }));
+
+  function drawBg(t) {
+    if (!yesActive) return;
+
+    // Глубокий тёмный фон с лёгким свечением
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#0a0008';
+    ctx.fillRect(0, 0, W, H);
+
+    // Рисуем световые пятна
+    for (const g of glows) {
+      g.phase += g.speed;
+      const cx = (0.2 + Math.sin(g.phase * 0.7) * 0.35) * W;
+      const cy = (0.2 + Math.cos(g.phase * 0.5) * 0.35) * H;
+      const pulse = 0.7 + 0.3 * Math.sin(g.phase * 1.3);
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, g.r * Math.min(W, H) * pulse);
+      grad.addColorStop(0, `hsla(${g.hue},90%,60%,0.12)`);
+      grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    // Рисуем звёзды
+    for (const p of particles) {
+      p.angle += p.speed;
+      p.twinkle += p.twinkleSpeed;
+      const px = ((p.x + Math.cos(p.angle) * 0.15) % 1 + 1) % 1 * W;
+      const py = ((p.y + Math.sin(p.angle * 0.7) * 0.1) % 1 + 1) % 1 * H;
+      const alpha = p.alpha * (0.5 + 0.5 * Math.sin(p.twinkle));
+      ctx.beginPath();
+      ctx.arc(px, py, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.hue},80%,85%,${alpha})`;
+      ctx.fill();
+    }
+
+    yesAnimFrame = requestAnimationFrame(drawBg);
+  }
+
+  drawBg(0);
+}
+
+// ── 3D ВРАЩАЮЩЕЕСЯ СЕРДЦЕ ──
+function initYesHeart(name) {
+  const canvas = document.getElementById('yes-heart-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Строим 3D точки сердца параметрически
+  const chars = (name.toUpperCase() + name.toUpperCase()).split('');
+  const points3D = [];
+
+  // Параметрическое сердце в 3D: классическая формула
+  const steps = 60;
+  for (let i = 0; i < steps; i++) {
+    const t = (i / steps) * Math.PI * 2;
+    for (let j = 0; j < steps; j++) {
+      const phi = (j / steps) * Math.PI * 2;
+
+      // Поверхность сердца (3D параметрическая)
+      const sinT = Math.sin(t);
+      const x3 = 16 * sinT * sinT * sinT;
+      const y3 = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+
+      // Небольшое "выдавливание" вглубь
+      const depth = Math.cos(phi) * 1.5;
+      const sideX  = Math.sin(phi) * 1.5;
+
+      // Добавляем нормаль для 3D эффекта
+      const nx = Math.cos(t) * sinT;
+
+      points3D.push({
+        ox: x3 + sideX * Math.abs(nx + 0.5),
+        oy: y3,
+        oz: depth * (1 - Math.abs(sinT) * 0.5),
+        char: chars[(i * steps + j) % chars.length],
+        hue: 320 + Math.sin(t + phi) * 40,
+      });
+    }
+  }
+
+  let rotX = 0.3;
+  let rotY = 0;
+  let autoRotY = 0;
+  let autoRotX = 0.3;
+  let scale = 0;      // анимация появления
+
+  function project(ox, oy, oz, rX, rY) {
+    // Вращение по Y
+    const x1 =  ox * Math.cos(rY) + oz * Math.sin(rY);
+    const z1 = -ox * Math.sin(rY) + oz * Math.cos(rY);
+    // Вращение по X
+    const y2 =  oy * Math.cos(rX) - z1 * Math.sin(rX);
+    const z2 =  oy * Math.sin(rX) + z1 * Math.cos(rX);
+    // Перспектива
+    const fov = 5;
+    const zOff = 10;
+    const s = fov / (fov + z2 * 0.3 + zOff);
+    return { sx: x1 * s, sy: y2 * s, z2, s };
+  }
+
+  let startTime = null;
+
+  function drawHeart(ts) {
+    if (!yesActive) return;
+    if (!startTime) startTime = ts;
+    const elapsed = (ts - startTime) / 1000;
+
+    // Появление сердца
+    scale = Math.min(1, elapsed / 1.2);
+    const eased = scale < 1 ? 1 - Math.pow(1 - scale, 3) : 1;
+
+    autoRotY = elapsed * 0.6;
+    autoRotX = 0.3 + Math.sin(elapsed * 0.4) * 0.15;
+
+    ctx.clearRect(0, 0, W, H);
+
+    const cx = W / 2;
+    const cy = H / 2 - H * 0.08; // чуть выше центра, освобождаем место тексту
+    const baseSize = Math.min(W, H) * 0.022 * eased;
+
+    // Проецируем и сортируем по глубине (художник: ближние поверх)
+    const projected = points3D.map(p => {
+      const { sx, sy, z2, s } = project(p.ox, p.oy, p.oz, autoRotX, autoRotY);
+      return { ...p, sx, sy, z2, s };
+    });
+
+    projected.sort((a, b) => a.z2 - b.z2);
+
+    for (const p of projected) {
+      const px = cx + p.sx * baseSize * 12;
+      const py = cy + p.sy * baseSize * 12;
+
+      // Обрезаем то что за экраном
+      if (px < -50 || px > W + 50 || py < -50 || py > H + 50) continue;
+
+      // Яркость зависит от глубины (дальние — темнее)
+      const depthFactor = (p.z2 + 12) / 24; // 0..1
+      const bright = 40 + depthFactor * 55;
+      const alpha  = 0.3 + depthFactor * 0.7;
+
+      // Размер символа зависит от глубины
+      const fontSize = Math.max(6, baseSize * (0.5 + depthFactor * 0.8));
+
+      ctx.font = `bold ${fontSize}px 'Courier New', monospace`;
+      ctx.fillStyle = `hsla(${p.hue + autoRotY * 20},90%,${bright}%,${alpha * eased})`;
+
+      // Свечение для ближних точек
+      if (depthFactor > 0.75) {
+        ctx.shadowColor = `hsla(${p.hue},100%,70%,0.8)`;
+        ctx.shadowBlur  = fontSize * 2;
+      } else {
+        ctx.shadowBlur = 0;
+      }
+
+      ctx.fillText(p.char, px, py);
+    }
+
+    ctx.shadowBlur = 0;
+    requestAnimationFrame(drawHeart);
+  }
+
+  requestAnimationFrame(drawHeart);
+}
+
+// ── QUESTION / CELEBRATE ──
 const noMessages = [
   'Подожди... 😔',
   'Это больно...',
@@ -413,39 +654,17 @@ function goToQuestion() {
 
 function celebrateQuestion() {
   if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
-  document.getElementById('celebration-text').textContent = `Спасибо, ${state.userName || 'моя хорошая'}! ❤️`;
-  document.getElementById('celebration-sub').textContent  = 'Ты сделала меня самым счастливым';
-  celebrate();
   notifyYes();
-  setTimeout(() => showScreen('screen-main'), 4500);
-}
-
-function celebrate() {
-  const cel = document.getElementById('celebration');
-  cel.classList.add('show');
-  launchHearts();
   trackVisit();
-  const t = setTimeout(() => cel.classList.remove('show'), 4500);
-  cel.addEventListener('click', () => { clearTimeout(t); cel.classList.remove('show'); }, { once: true });
+  showYesScreen(state.userName);
 }
 
 function closeCelebration() {
-  document.getElementById('celebration').classList.remove('show');
+  closeYesScreen();
 }
 
 function launchHearts() {
-  const emojis = ['💕', '💖', '✨', '🌹', '💝', '🌸', '🎊'];
-  for (let i = 0; i < 50; i++) {
-    setTimeout(() => {
-      const h = document.createElement('div');
-      h.className = 'heart';
-      h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      h.style.left = Math.random() * 100 + 'vw';
-      h.style.top  = (window.innerHeight - 20) + 'px';
-      document.body.appendChild(h);
-      setTimeout(() => h.remove(), 2100);
-    }, i * 60);
-  }
+  // теперь эффект реализован внутри yes-экрана
 }
 
 // ── READING TIMER ──
